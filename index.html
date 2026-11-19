@@ -320,30 +320,6 @@ var RC={id:'rcg-las-palmas',name:'RCG Las Palmas · Recorrido A',loc:'Bandama, S
   {name:'Rojas (M)',cr:67.4,slope:126,par:71,si:[18,4,15,2,5,9,11,14,7,16,3,8,13,1,17,12,10,6]},
   {name:'Rojas (F)',cr:72.6,slope:129,par:71,si:[18,4,15,2,5,9,11,14,7,16,3,8,13,1,17,12,10,6]}
 ]};
-var RCB={id:'rcg-las-palmas-b',name:'RCG Las Palmas · Recorrido B',loc:'Bandama, Santa Brígida',
-  note:'Fuente: ficha del club en rfegolf.es, consultada el 19/11/2026. Par 71. Sin índice de golpes por hoyo: la ficha no lo distingue del recorrido A, y no lo he supuesto.',
-  tees:[
-  {name:'Amarillas (M)',cr:70.7,slope:134,par:71,si:null},
-  {name:'Amarillas (F)',cr:76.6,slope:135,par:71,si:null},
-  {name:'Azules (M)',cr:69.3,slope:131,par:71,si:null},
-  {name:'Azules (F)',cr:75.0,slope:131,par:71,si:null},
-  {name:'Rojas (M)',cr:66.5,slope:122,par:71,si:null},
-  {name:'Rojas (F)',cr:71.4,slope:129,par:71,si:null}
-]};
-var CNG={id:'centro-nacional-de-golf',name:'Centro Nacional de Golf',loc:'Madrid',
-  note:'Fuente: ficha del club en rfegolf.es, consultada el 19/11/2026. Par 72. La ficha no indica a qué barras corresponde cada tabla; los valores se han asignado por el orden de la ficha, y los metros de cada pareja de barras cuadran.',
-  tees:[
-  {name:'Doradas (M)',cr:66.9,slope:120,par:72,si:[4, 10, 18, 6, 2, 12, 14, 8, 16, 3, 9, 5, 13, 17, 11, 1, 15, 7]},
-  {name:'Negras (M)',cr:73.7,slope:131,par:72,si:[4, 10, 18, 6, 2, 12, 14, 8, 16, 3, 9, 5, 13, 17, 11, 1, 15, 7]},
-  {name:'Blancas (M)',cr:71.0,slope:130,par:72,si:[4, 10, 18, 6, 2, 12, 14, 8, 16, 3, 9, 5, 13, 17, 11, 1, 15, 7]},
-  {name:'Amarillas (F)',cr:75.7,slope:134,par:72,si:[4, 10, 18, 6, 2, 12, 14, 8, 16, 3, 9, 5, 13, 17, 11, 1, 15, 7]},
-  {name:'Amarillas (M)',cr:69.2,slope:127,par:72,si:[4, 10, 18, 6, 2, 12, 14, 8, 16, 3, 9, 5, 13, 17, 11, 1, 15, 7]},
-  {name:'Azules (F)',cr:72.8,slope:131,par:72,si:[4, 10, 18, 6, 2, 12, 14, 8, 16, 3, 9, 5, 13, 17, 11, 1, 15, 7]},
-  {name:'Rojas (F)',cr:70.8,slope:128,par:72,si:[4, 10, 18, 6, 2, 12, 14, 8, 16, 3, 9, 5, 13, 17, 11, 1, 15, 7]},
-  {name:'Rojas (M)',cr:65.4,slope:113,par:72,si:[4, 10, 18, 6, 2, 12, 14, 8, 16, 3, 9, 5, 13, 17, 11, 1, 15, 7]},
-  {name:'Naranjas (F)',cr:65.6,slope:113,par:72,si:[4, 10, 18, 6, 2, 12, 14, 8, 16, 3, 9, 5, 13, 17, 11, 1, 15, 7]},
-  {name:'Naranjas (M)',cr:61.8,slope:100,par:72,si:[4, 10, 18, 6, 2, 12, 14, 8, 16, 3, 9, 5, 13, 17, 11, 1, 15, 7]}
-]};
 var user=(function(){var v=store.get('gh_courses'); return Array.isArray(v)?v:[];})();
 var nextId=10;
 var defaults={courseId:'rcg-las-palmas',defaultTee:'Amarillas (M)',format:'singles',calculated:true,sample:true,players:[
@@ -355,7 +331,9 @@ var saved=store.get('gh_state');
 var state=(saved&&Array.isArray(saved.players)&&saved.players.length&&FORMATS[saved.format])?saved:defaults;
 state.players.forEach(function(p){if(p.id>=nextId)nextId=p.id+1;});
 
-function allCourses(){return [RC,RCB,CNG].concat(user);}
+function teeRank(t){return /\(M\)\s*$/.test(t.name)?0:(/\(F\)\s*$/.test(t.name)?1:2);}
+function sortTees(c){c.tees.sort(function(a,b){return teeRank(a)-teeRank(b);});return c;}
+function allCourses(){return [RC].concat(user).map(sortTees);}
 function getCourse(){
   var c=allCourses().find(function(x){return x.id===state.courseId;});
   if(!c){c=RC;state.courseId=RC.id;}
@@ -495,6 +473,7 @@ function pick(id){
   list.hidden=true;
   renderAll();
   changed();
+  search.blur();
 }
 search.addEventListener('focus',function(){search.select();renderList('');});
 search.addEventListener('input',function(){renderList(search.value);});
@@ -517,15 +496,29 @@ function renderCourse(){
   $('#courseInfo').innerHTML=c.tees.map(function(t){
     return '<span style="white-space:nowrap">'+esc(t.name)+' '+num(t.cr,1)+' / '+t.slope+' / par '+t.par+(t.si?'':' (sin índice de golpes)')+'</span>';
   }).join(' &nbsp;·&nbsp; ')+(c.note?'<br><small>'+esc(c.note)+'</small>':'');
-  $('#dbCount').textContent='Base de datos: '+user.length+' '+(user.length===1?'campo propio':'campos propios')+', más RCG Las Palmas (A y B) y Centro Nacional de Golf.';
+  $('#dbCount').textContent='Base de datos: '+user.length+' '+(user.length===1?'campo propio':'campos propios')+', más RCG Las Palmas (recorrido A).';
 }
 
 /* ---------- Jugadores ---------- */
+function teeText(t,p){
+  var hi=p?parseHI(p.hi):NaN;
+  if(Number.isNaN(hi)||hi<-10||hi>54) return t.name;
+  var ch=courseHcp(hi,t).ch;
+  return t.name+' - '+(ch<0?'+'+(-ch):ch)+(Math.abs(ch)===1?' golpe':' golpes');
+}
+function updateTeeLabels(row,p){
+  var sel=row.querySelector('[data-k="tee"]'); if(!sel) return;
+  var c=getCourse();
+  Array.prototype.forEach.call(sel.options,function(o){
+    var t=c.tees.find(function(x){return x.name===o.value;});
+    if(t) o.textContent=teeText(t,p);
+  });
+}
 function renderPlayers(){
   var c=getCourse(), f=FORMATS[state.format];
-  var teeOpts=function(sel){
+  var teeOpts=function(sel,pl){
     var cur=sel||state.defaultTee;
-    return c.tees.map(function(t){return '<option value="'+esc(t.name)+'"'+(cur===t.name?' selected':'')+'>'+esc(t.name)+'</option>';}).join('');
+    return c.tees.map(function(t){return '<option value="'+esc(t.name)+'"'+(cur===t.name?' selected':'')+'>'+esc(teeText(t,pl))+'</option>';}).join('');
   };
   var box=$('#players');
   box.className='players'+(f.teams?' has-team':'');
@@ -535,7 +528,7 @@ function renderPlayers(){
     return '<div class="prow" data-id="'+p.id+'">'+
       '<div class="f-name"><label class="lab" for="n'+p.id+'">Nombre</label><input id="n'+p.id+'" data-k="name" maxlength="24" autocomplete="off" placeholder="Nombre" value="'+esc(p.name)+'"></div>'+
       '<div class="f-hi hiwrap"><label class="lab" for="h'+p.id+'">Índice</label><input id="h'+p.id+'" data-k="hi" type="text" inputmode="decimal" autocomplete="off" placeholder="Índice" value="'+esc(p.hi)+'"><button type="button" class="plus" data-act="plus" aria-pressed="'+plus+'" aria-label="Índice con signo más" title="Índice con signo más">+</button></div>'+
-      '<div class="f-tee"><label class="lab" for="t'+p.id+'">Barras</label><select id="t'+p.id+'" data-k="tee">'+teeOpts(p.tee||'')+'</select></div>'+
+      '<div class="f-tee"><label class="lab" for="t'+p.id+'">Barras</label><select id="t'+p.id+'" data-k="tee">'+teeOpts(p.tee||'',p)+'</select></div>'+
       '<div class="f-team"'+(f.teams?'':' hidden')+'><label class="lab" for="q'+p.id+'">Equipo</label><select id="q'+p.id+'" data-k="team"><option value="A"'+(p.team==='A'?' selected':'')+'>A</option><option value="B"'+(p.team==='B'?' selected':'')+'>B</option></select></div>'+
       '<div class="f-rm"><button type="button" class="rm" data-act="rm" aria-label="Quitar a '+esc(p.name)+'"'+(state.players.length<=1?' disabled':'')+'>×</button></div>'+
     '</div>';
@@ -552,6 +545,7 @@ function onPlayerEdit(e){
   if(!p) return;
   p[t.dataset.k]=t.value;
   if(t.dataset.k==='tee'&&t.value===state.defaultTee) p.tee='';
+  if(t.dataset.k==='hi') updateTeeLabels(row,p);
   if(t.dataset.k==='hi'){var pb=row.querySelector('.plus'); if(pb) pb.setAttribute('aria-pressed',String(t.value.trim().charAt(0)==='+'));}
   if(t.dataset.k!=='tee'&&t.dataset.k!=='team'||true){state.sample=false;$('#sampleHint').hidden=true;}
   changed(e.type==='change');
@@ -563,7 +557,7 @@ $('#players').addEventListener('click',function(e){
   if(pl){
     var prow=pl.closest('.prow'), inp=prow.querySelector('[data-k="hi"]'), pp=state.players.find(function(x){return String(x.id)===prow.dataset.id;});
     var v=inp.value.trim(); v=v.charAt(0)==='+'?v.slice(1):'+'+v;
-    inp.value=v; pp.hi=v; pl.setAttribute('aria-pressed',String(v.charAt(0)==='+'));
+    inp.value=v; pp.hi=v; updateTeeLabels(prow,pp); pl.setAttribute('aria-pressed',String(v.charAt(0)==='+'));
     state.sample=false; $('#sampleHint').hidden=true; changed(true); inp.focus(); return;
   }
   var b=e.target.closest('[data-act="rm"]'); if(!b) return;
@@ -694,7 +688,7 @@ function ingest(rows){
     var cr=pnum(r.cr), slope=pnum(r.slope), par=pnum(r.par), problem=null;
     if(!name) problem='falta el nombre del campo';
     else if(!(cr>=50&&cr<=90)) problem='el valor de campo debe estar entre 50 y 90';
-    else if(!(slope>=55&&slope<=155)) problem='el slope debe estar entre 55 y 155';
+    else if(!(slope>0)) problem='falta el slope';
     else if(!(par>=54&&par<=76)) problem='el par debe estar entre 54 y 76';
     if(problem){bad++; if(errs.length<4) errs.push('fila '+(i+2)+': '+problem); return;}
     var si=null;
