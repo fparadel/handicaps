@@ -954,16 +954,18 @@ function scoreHTML(items){
   var withSI=items.filter(function(i){return i.holes;});
   if(!withSI.length) return '<p class="muted">Este campo no tiene índice de golpes. Añádelo en la base de datos para ver en qué hoyos cae cada golpe.</p>';
   var ref=withSI[0].si, mixed=withSI.some(function(i){return JSON.stringify(i.si)!==JSON.stringify(ref);});
-  var head='<th scope="col">Hoyo</th>',sirow='<td>Índice</td>';
+  var head='<th scope="col">Hoyo</th>',sirow='<td>Hándicap</td>';
   for(var h=0;h<18;h++){head+='<th scope="col">'+(h+1)+'</th>';sirow+='<td>'+ref[h]+'</td>';}
   head+='<th scope="col">Total</th>'; sirow+='<td></td>';
+  var rh=items.filter(function(i){return i.hp;})[0], parrow='';
+  if(rh) parrow='<tr class="si"><td>Par</td>'+rh.hp.map(function(v){return '<td>'+v+'</td>';}).join('')+'<td>'+rh.hp.reduce(function(s,v){return s+v;},0)+'</td></tr>';
   var body=items.map(function(i){
     if(!i.holes) return '<tr><td>'+esc(i.label)+'</td><td colspan="19" class="muted" style="text-align:left">sin índice de golpes</td></tr>';
     var tot=0, cells=i.holes.map(function(k){tot+=k; return k===0?'<td></td>':'<td class="'+(k>0?'hit':'give')+'">'+(k>0?k:'+'+(-k))+'</td>';}).join('');
     return '<tr><td>'+esc(i.label)+'</td>'+cells+'<td><b>'+strokesLabel(tot)+'</b></td></tr>';
   }).join('');
   return '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin:18px 0 8px"><h3 style="font-family:var(--font-display);font-size:15px;margin:0">Golpes por hoyo</h3><button type="button" class="btn ghost sm" data-hole="open">Modo hoyo ›</button></div>'+
-    '<div class="tablewrap"><table class="sc"><thead><tr>'+head+'</tr></thead><tbody><tr class="si">'+sirow+'</tr>'+body+'</tbody></table></div>'+
+    '<div class="tablewrap"><table class="sc"><thead><tr>'+head+'</tr></thead><tbody>'+parrow+'<tr class="si">'+sirow+'</tr>'+body+'</tbody></table></div>'+
     (mixed?'<p class="note">Las salidas tienen distinto índice de golpes. Cada fila usa el de su propia salida; el de la cabecera es el del primer jugador.</p>':'');
 }
 function resultHTML(out,key){
@@ -978,8 +980,8 @@ function resultHTML(out,key){
       return '<tr><td><b>'+esc(r.name)+'</b>'+(out.teams?'<span class="badge">'+r.team+'</span>':'')+'</td><td class="num">'+fmtHI(r.hi)+'</td><td class="num">'+r.ch+(r.adj?'<br><small>'+(r.adj>0?'+':'−')+Math.abs(r.adj)+' por par</small>':'')+'</td>'+
         (out.teams?'':'<td class="num"><span class="big">'+strokesLabel(r.strokes)+'</span>'+(r.strokes<0?'<br><small>devuelve al campo</small>':'')+'</td>')+'<td>'+esc(r.tee.name)+'<br><small>'+num(r.tee.cr,1)+' / '+r.tee.slope+' / par '+r.tee.par+'</small></td></tr>';
     }).join('')+'</tbody></table></div>';
-  var items=out.teams?out.teams.map(function(t){return {label:'Equipo '+t.key,holes:t.holes,si:t.si};}):
-    out.rows.map(function(r){return {label:r.name,holes:r.holes,si:r.tee.si};});
+  var items=out.teams?out.teams.map(function(t){return {label:'Equipo '+t.key,holes:t.holes,si:t.si,hp:t.members[0].tee.hp||null};}):
+    out.rows.map(function(r){return {label:r.name,holes:r.holes,si:r.tee.si,hp:r.tee.hp||null};});
   h+=scoreHTML(items);
   if(out.notes.length) h+=out.notes.map(function(n){return '<p class="note">'+esc(n)+'</p>';}).join('');
   h+='<details style="margin-top:14px"><summary>Ver el cálculo</summary><ul class="calc">'+out.rows.map(function(r){return '<li><b>'+esc(r.name)+'</b>: '+esc(calcLine(r,key))+'</li>';}).join('')+
@@ -1183,12 +1185,12 @@ function renderHole(){
   }).join('');
   var cur=strip.querySelector('[aria-current="true"]'); if(cur) strip.scrollLeft=Math.max(0,cur.offsetLeft-strip.clientWidth/2+19);
   var parT=refHp?refHp.hp[h0]:'–', siT=ref?ref.si[h0]:'–';
-  var html='<div class="hvi"><div>Par<b>'+parT+'</b></div><div>Índice de golpes<b>'+siT+'</b></div><div class="f">Formato<b>'+esc(FORMATS[state.format].label)+' '+FORMATS[state.format].pct+'</b></div></div>';
+  var html='<div class="hvi"><div>Par<b>'+parT+'</b></div><div>hcp<b>'+siT+'</b></div><div class="f">Formato<b>'+esc(FORMATS[state.format].label)+' '+FORMATS[state.format].pct+'</b></div></div>';
   html+=items.map(function(i){
     var k=i.holes?i.holes[h0]:null;
     var extra=[];
     if(i.hp&&refHp&&i.hp[h0]!==refHp.hp[h0]) extra.push('par '+i.hp[h0]);
-    if(i.si&&ref&&i.si[h0]!==ref.si[h0]) extra.push('índ. '+i.si[h0]);
+    if(i.si&&ref&&i.si[h0]!==ref.si[h0]) extra.push('hcp '+i.si[h0]);
     var sub=(i.sub?esc(i.sub)+' · ':'')+strokesLabel(i.tot)+' golpes en total'+(extra.length?' · '+extra.join(' · '):'');
     var box=k===null?'–':(k===0?'–':(k>0?String(k):'+'+(-k)));
     var cls='b'+(k===null||k===0?' z':(k<0?' g2':''));
