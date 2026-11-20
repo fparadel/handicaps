@@ -1,5 +1,5 @@
 <!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
-<title>Golpes de Hándicap</title>
+<title>Golpes en el tee</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -7,8 +7,8 @@
 <style>
 /* Layout: una sola pantalla de trabajo en columna: campo, jugadores, formato, resultado y, al final, la base de datos plegable. */
 :root{
-  --bg:#eef2ef; --surface:#fbfcfb; --field:#f4f7f5; --fg:#13201a; --muted:#53615a; --line:#d3dcd6;
-  --accent:#17694a; --accent-fg:#ffffff; --accent-soft:#dcefe4;
+  --bg:#f3efe4; --surface:#fffdf8; --field:#f3efe4; --fg:#15281f; --muted:#5d6b60; --line:#ddd6c3;
+  --accent:#1d5a3f; --accent-fg:#ffffff; --accent-soft:#dcefe4;
   --warn:#8a5200; --warn-soft:#fbeed6; --err:#a1262b;
   --font-display:'Space Grotesk',system-ui,sans-serif; --font-body:'Inter',system-ui,sans-serif;
 }
@@ -50,19 +50,6 @@ input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-vis
 .results button{all:unset;display:block;box-sizing:border-box;width:100%;padding:8px 10px;border-radius:6px;cursor:pointer}
 .results button:hover,.results button:focus-visible{background:var(--accent-soft)}
 .results small{display:block}
-.players{display:grid}
-.phead,.prow{display:grid;grid-template-columns:minmax(0,1.5fr) 112px minmax(0,1.2fr) 34px;gap:8px;align-items:center}
-.players.has-team .phead,.players.has-team .prow{grid-template-columns:minmax(0,1.5fr) 112px minmax(0,1.2fr) 80px 34px}
-.phead{font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);padding-bottom:4px}
-.prow{padding-block:3px}
-.prow input,.prow select{padding:6px 8px;font-size:14px}
-.prow .lab{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;margin:0}
-.hiwrap{display:flex;gap:4px;min-width:0}
-.plus{font:inherit;font-weight:700;width:30px;flex:none;border:1px solid var(--line);border-radius:7px;background:var(--field);color:var(--muted);cursor:pointer;padding:0}
-.plus[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
-.rm{font:inherit;width:34px;height:34px;border:0;background:transparent;color:var(--muted);font-size:18px;border-radius:7px;cursor:pointer;padding:0}
-.rm:hover:not([disabled]){background:var(--accent-soft);color:var(--fg)}
-.rm[disabled]{opacity:.35;cursor:default}
 .hint{background:var(--accent-soft);border-radius:8px;padding:8px 12px;margin:0 0 10px;font-size:13.5px}
 .formats{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-bottom:14px}
 .fmt{position:relative;display:block}
@@ -114,52 +101,187 @@ details.panel>summary{font-family:var(--font-display);font-size:17px}
 pre{overflow-x:auto;background:var(--field);border:1px solid var(--line);border-radius:7px;padding:10px;font-size:12.5px;margin:8px 0}
 .status{margin:8px 0 0;font-size:13.5px}
 footer{color:var(--muted);font-size:13px}
-@media (max-width:640px){
-  .phead{display:none}
-  .prow,.players.has-team .prow{grid-template-columns:minmax(0,1fr) 80px 34px;row-gap:6px;padding-block:8px}
-  .prow+.prow{border-top:1px solid var(--line)}
-  .f-name{grid-column:1}
-  .f-hi{grid-column:2/4}
-  .f-tee{grid-column:1}
-  .players:not(.has-team) .f-tee{grid-column:1/3}
-  .f-team{grid-column:2}
-  .f-rm{grid-column:3}
-}
 @media (prefers-reduced-motion: no-preference){ .btn{transition:filter .15s} .btn:hover{filter:brightness(1.08)} }
+
+/* --- Interfaz "En el tee" --- */
+body{padding-block:20px 96px}
+h1{font-size:clamp(24px,7vw,30px)}
+.lede{font-size:13.5px}
+#memStatus{font-size:12px!important}
+@media (max-width:520px){#results{padding:12px}#results th,#results td{padding:8px 5px}#results th{font-size:11px;letter-spacing:.02em}#results .big{font-size:24px}}
+.wrap{grid-template-columns:minmax(0,1fr)}
+.course{display:flex;align-items:center;gap:12px;width:100%;text-align:left;font:inherit;color:inherit;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:12px 14px;cursor:pointer}
+.flag{width:38px;height:38px;border-radius:50%;background:var(--accent);color:var(--accent-fg);display:grid;place-items:center;font-size:18px;flex:none}
+.ctext{min-width:0;flex:1}.ctext b{display:block;font-size:15.5px;overflow-wrap:anywhere}.ctext small{font-size:12.5px;color:var(--muted)}
+.chev{color:var(--muted);font-size:22px}.course[aria-expanded="true"] .chev{transform:rotate(90deg)}
+#coursePanel{margin-top:8px}
+.fchips{display:flex;gap:8px;overflow-x:auto;margin-inline:-16px;padding:2px 16px;scrollbar-width:none}
+.fchips::-webkit-scrollbar{display:none}
+.fchip{flex:none;font:inherit;font-size:14px;font-weight:600;padding:9px 14px;border-radius:999px;background:var(--surface);border:1.5px solid var(--line);color:var(--fg);cursor:pointer;white-space:nowrap}
+.fchip small{margin-left:4px;font-weight:500;color:inherit;opacity:.75;font-size:13px}
+.fchip[aria-checked="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
+.fdesc{font-size:13.5px;color:var(--muted);margin:-8px 0 0}
+#players{display:grid;gap:8px}
+.prow{position:relative;display:flex;align-items:center;gap:8px;margin-left:0;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:9px 8px}
+.prow .lab{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;margin:0}
+.av{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:14px;flex:none;color:#15281f}
+.nm{flex:1;min-width:0}
+.nmi{border:0;background:transparent;padding:0;font-weight:700;font-size:16.5px;width:100%;border-radius:4px}
+.sub{display:flex;flex-wrap:wrap;gap:0 8px}
+.sel{position:relative;flex:1 1 100%;min-width:0}
+.sel::after{content:"\25BE";position:absolute;right:2px;top:50%;transform:translateY(-50%);pointer-events:none;font-size:11px;color:var(--muted)}
+.sel select{appearance:none;-webkit-appearance:none;border:0;background:transparent;padding:2px 14px 2px 0;font-size:11px;letter-spacing:-.01em;color:var(--muted);width:100%;text-overflow:ellipsis;border-radius:4px}
+.sel.tm{flex:0 0 auto}.sel.tm select{padding-right:14px;width:auto;color:var(--accent);font-weight:600}
+.hiwrap{position:relative;width:64px;flex:none}
+.hiwrap input{width:64px;height:44px;text-align:center;font-size:20px;font-weight:700;padding:0;border-radius:12px}
+.plus{position:absolute;left:-9px;top:-9px;font:inherit;font-weight:700;font-size:14px;line-height:1;width:24px;height:24px;border:1px solid var(--line);border-radius:50%;background:var(--surface);color:var(--muted);cursor:pointer;padding:0}
+.plus[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
+.g{width:56px;height:56px;border-radius:15px;background:var(--accent);color:var(--accent-fg);display:grid;place-items:center;font-size:28px;font-weight:800;flex:none}
+.g.z{background:var(--line);color:var(--muted)}
+.g[data-cap]{display:flex;flex-direction:column;justify-content:center;align-items:center;line-height:1}
+.g[data-cap]::after{content:attr(data-cap);font-size:9px;font-weight:600;opacity:.85;margin-top:3px}
+.rm{position:absolute;top:-9px;right:-5px;width:28px;height:28px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--muted);font-size:17px;line-height:1;cursor:pointer;padding:0}
+.rm[disabled]{display:none}
+.add{width:100%;font:inherit;font-weight:600;color:var(--muted);background:transparent;border:1.5px dashed var(--line);border-radius:16px;padding:12px;cursor:pointer;margin-top:8px}
+.add[disabled]{opacity:.5;cursor:not-allowed}
+.error.soft{color:var(--muted);font-weight:400;font-size:13.5px}
+.bar{position:fixed;left:0;right:0;bottom:0;z-index:20;padding:10px max(16px,env(safe-area-inset-right,0px)) calc(12px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));background:var(--bg);border-top:1px solid var(--line)}
+.bar>div{max-width:980px;margin:0 auto}
+.bar .note{background:none;color:var(--muted);text-align:center;font-size:12px;margin:0 0 8px;padding:0}
+.bar .btn{width:100%;height:54px;border-radius:16px;font-size:16px;background:var(--fg);border-color:var(--fg);color:var(--bg)}
+
+/* --- Entrada rápida de índices, selector de barras y teclado --- */
+button{touch-action:manipulation}
+.prow{display:block;padding:8px}
+.l1{display:flex;align-items:center;gap:8px}
+.nmi{height:30px;font-size:17px}
+.nl{display:flex;align-items:center;gap:6px}
+.nl .nm{flex:1;min-width:0}
+.hiwrap{position:relative;width:76px;flex:none}
+.hiwrap input{width:76px;height:52px;text-align:center;font-size:24px;font-weight:800;padding:0;border-radius:14px;border:2px solid var(--line);background:var(--field);color:var(--fg)}
+.hiwrap input::placeholder{font-size:13px;font-weight:500;color:var(--muted)}
+.hiwrap input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 4px rgba(29,90,63,.22)}
+.hiwrap input.fresh{background:var(--surface);border-color:var(--accent)}
+.hiwrap input.nokb{caret-color:transparent}
+.hiwrap input.bump{animation:bump .16s}
+@keyframes bump{50%{transform:translateX(3px)}}
+.sub{display:flex;gap:6px;margin-top:4px;flex-wrap:nowrap}
+.g{width:52px;height:52px;font-size:26px;border-radius:14px}
+.l1 .nm{flex:1;min-width:0}
+.teebtn{flex:1;min-width:0;display:flex;align-items:center;gap:6px;height:34px;padding:0 6px 0 9px;font:inherit;font-size:13px;color:var(--fg);background:var(--field);border:1.5px solid var(--line);border-radius:10px;cursor:pointer;text-align:left}
+.teebtn .tn{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.teebtn .tc{margin-left:auto;font-size:12px;color:var(--muted);white-space:nowrap;flex:none}
+.teebtn .cv{flex:none;color:var(--muted);width:14px;height:14px}
+.dot{width:12px!important;height:12px!important}
+.dot{flex:none;width:14px;height:14px;border-radius:50%;box-shadow:inset 0 0 0 1.5px rgba(0,0,0,.3)}
+.teambtn{flex:none;height:28px;padding:0 10px;font:inherit;font-size:12.5px;font-weight:700;border-radius:999px;border:1.5px solid var(--accent);background:var(--accent);color:var(--accent-fg);cursor:pointer}
+.teambtn[data-t="B"]{background:transparent;color:var(--accent)}
+.sheet{position:fixed;inset:0;z-index:50}
+.scrim{position:absolute;inset:0;background:rgba(8,18,12,.5)}
+.sp{position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:min(100%,560px);max-height:80vh;display:flex;flex-direction:column;background:var(--surface);border-radius:22px 22px 0 0;box-shadow:0 -8px 30px rgba(0,0,0,.25);padding-bottom:env(safe-area-inset-bottom,0px)}
+.grab{width:40px;height:4px;border-radius:2px;background:var(--line);margin:8px auto 0}
+.sh{display:flex;align-items:flex-start;gap:10px;padding:10px 16px 8px}
+.sh>div{flex:1;min-width:0}.sh b{display:block;font-size:17px}.sh small{color:var(--muted);font-size:13px}
+.sx{width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:var(--field);font-size:20px;line-height:1;color:var(--muted);cursor:pointer;padding:0}
+.sl{overflow:auto;padding:0 12px 14px;display:grid;gap:8px}
+.sg{font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:700;margin:8px 4px 0}
+.opt{display:flex;align-items:center;gap:12px;min-height:60px;padding:8px 14px;font:inherit;color:var(--fg);background:var(--field);border:2px solid transparent;border-radius:14px;text-align:left;cursor:pointer;width:100%}
+.opt[aria-selected="true"]{border-color:var(--accent);background:var(--surface)}
+.opt .on{flex:1;min-width:0}.opt .on b{display:block;font-size:16px;overflow-wrap:anywhere}.opt .on small{color:var(--muted);font-size:12.5px}
+.opt .oc{text-align:right;flex:none}.opt .oc b{display:block;font-size:24px;line-height:1}.opt .oc small{font-size:11px;color:var(--muted)}
+body.sheetopen{overflow:hidden}
+.kp{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--surface);border-top:1px solid var(--line);padding:8px max(10px,env(safe-area-inset-right,0px)) calc(10px + env(safe-area-inset-bottom,0px)) max(10px,env(safe-area-inset-left,0px));-webkit-user-select:none;user-select:none}
+.kp>div{max-width:520px;margin:0 auto}
+.kpt{display:flex;align-items:center;gap:6px;margin-bottom:8px}
+.kpn{flex:1;min-width:0;text-align:center;font-weight:700;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.kpn small{display:block;font-weight:500;color:var(--muted);font-size:11px}
+.kk{font:inherit;color:var(--fg);background:var(--field);border:1px solid var(--line);border-radius:11px;cursor:pointer;padding:0;display:grid;place-items:center}
+.kk:active{background:var(--line)}
+.kk[disabled]{opacity:.3}
+.kpt .ar{width:42px;height:40px}
+.kpt .pl{width:42px;height:40px;font-size:20px;font-weight:700}
+.kpt .pl[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
+.kpt .done{height:40px;padding:0 14px;font-weight:700;font-size:15px;background:var(--fg);border-color:var(--fg);color:var(--bg)}
+.kpg{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+.kpg .kk{height:50px;font-size:23px;font-weight:600}
+.bar{left:auto;right:max(14px,env(safe-area-inset-right,0px));bottom:calc(14px + env(safe-area-inset-bottom,0px));padding:0;background:none;border:0}
+.bar .btn{width:52px;height:52px;border-radius:50%;padding:0;display:grid;place-items:center;box-shadow:0 4px 14px rgba(0,0,0,.3)}
+.bar.gone{display:none}
+body{padding-block:20px 80px}
+body.kpopen{padding-bottom:320px}
+body.kpopen .bar{display:none}
+
+/* --- Modo hoyo --- */
+body.holeopen{overflow:hidden}
+.hv{position:fixed;inset:0;z-index:45;background:var(--bg);overflow-y:auto;padding:max(14px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) calc(20px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.hv>div{max-width:520px;margin:0 auto}
+.hvt{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.hvt .back{width:42px;height:42px;flex:none;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--fg);font-size:22px;line-height:1;cursor:pointer;padding:0}
+.hvt h2{margin:0;font-size:26px;line-height:1.1}
+.hvt small{display:block;font-family:var(--font-body);font-weight:500;font-size:12.5px;color:var(--muted);margin-top:2px}
+.hvs{display:flex;gap:6px;overflow-x:auto;margin-inline:-16px;padding:2px 16px 8px;scrollbar-width:none}
+.hvs::-webkit-scrollbar{display:none}
+.hvs button{flex:none;position:relative;width:38px;height:46px;border-radius:12px;background:var(--surface);border:1px solid var(--line);color:var(--fg);font:inherit;font-weight:700;font-size:15px;cursor:pointer;padding:0 0 6px}
+.hvs button i{position:absolute;bottom:5px;left:50%;width:5px;height:5px;margin-left:-2.5px;border-radius:50%;background:var(--accent)}
+.hvs button[aria-current="true"]{background:var(--fg);border-color:var(--fg);color:var(--bg)}
+.hvs button[aria-current="true"] i{background:var(--bg)}
+.hvi{display:flex;gap:8px;margin:4px 0 12px}
+.hvi div{flex:1;min-width:0;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:8px 10px;font-size:12px;color:var(--muted)}
+.hvi b{display:block;font-size:20px;line-height:1.2;color:var(--fg)}
+.hvi div.f b{font-size:14px;margin-top:5px}
+.hp{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:12px 14px;margin-bottom:8px}
+.hp.has{border-color:var(--accent)}
+.hp .n{flex:1;min-width:0;font-weight:700;font-size:18px;overflow-wrap:anywhere}
+.hp .n small{display:block;font-weight:500;font-size:12.5px;color:var(--muted)}
+.hp .d{font-size:26px;letter-spacing:3px;color:var(--accent);text-align:right;white-space:nowrap}
+.hp .b{flex:none;width:60px;height:60px;border-radius:17px;display:grid;place-items:center;font-size:30px;font-weight:800;background:var(--accent);color:var(--accent-fg)}
+.hp .b.z{background:var(--line);color:var(--muted);font-size:24px}
+.hp .b.g2{background:var(--warn-soft);color:var(--warn)}
+.hvn{display:flex;gap:10px;margin-top:14px}
+.hvn button{flex:1;height:54px;border-radius:16px;border:1.5px solid var(--line);background:var(--surface);color:var(--fg);font:inherit;font-weight:700;font-size:16px;cursor:pointer}
+.hvn button.p{background:var(--fg);border-color:var(--fg);color:var(--bg)}
+.hvn button[disabled]{opacity:.35}
+.hvm{font-size:12.5px;color:var(--muted);text-align:center;margin:14px 0 0}
 </style>
 
 <main class="wrap">
   <header>
-    <h1>Golpes de hándicap</h1>
-    <p class="lede">Escribe los índices, elige campo y formato, y obtén los golpes de cada jugador en total y por hoyo. Reglas de Hándicap 2024 de la R&amp;A y la USGA, Apéndice C.</p>
+    <h1>En el tee</h1>
+    <p class="lede">Escribe los índices y los golpes de hándicap salen al instante. Reglas de Hándicap 2024 de la R&amp;A y la USGA, Apéndice C.</p>
     <p id="memStatus" class="muted" style="margin:8px 0 0;font-size:13px" role="status">Tus jugadores y campos se guardan solo en este navegador.</p>
   </header>
 
-  <section class="panel" aria-labelledby="h-course">
-    <h2 id="h-course">Campo</h2>
-    <div class="row">
-      <div class="grow combo" id="comboWrap">
-        <label class="lab" for="courseSearch">Buscar campo</label>
-        <input id="courseSearch" type="search" autocomplete="off" placeholder="Nombre o localidad">
-        <ul id="courseList" class="results" hidden></ul>
+  <section aria-label="Campo">
+    <button type="button" id="courseCard" class="course" aria-expanded="false" aria-controls="coursePanel">
+      <span class="flag" aria-hidden="true">⚑</span>
+      <span class="ctext"><b id="cName"></b><small id="cSub"></small></span>
+      <span class="chev" aria-hidden="true">›</span>
+    </button>
+    <div id="coursePanel" class="panel" hidden>
+      <div class="row">
+        <div class="grow combo" id="comboWrap">
+          <label class="lab" for="courseSearch">Buscar campo</label>
+          <input id="courseSearch" type="search" autocomplete="off" placeholder="Nombre o localidad">
+          <ul id="courseList" class="results" hidden></ul>
+        </div>
+        <div style="flex:0 1 220px;min-width:160px">
+          <label class="lab" for="teeDefault">Barras por defecto</label>
+          <select id="teeDefault"></select>
+        </div>
       </div>
-      <div style="flex:0 1 220px;min-width:160px">
-        <label class="lab" for="teeDefault">Barras</label>
-        <select id="teeDefault"></select>
-      </div>
+      <p id="courseInfo" class="muted" style="margin:10px 0 0"></p>
+      <p id="dbCount" class="muted" style="margin:4px 0 0;font-size:13px"></p>
     </div>
-    <p id="courseInfo" class="muted" style="margin:10px 0 0"></p>
-    <p id="dbCount" class="muted" style="margin:4px 0 0;font-size:13px"></p>
   </section>
 
-  <section class="panel" aria-labelledby="h-players">
-    <h2 id="h-players">Jugadores</h2>
-    <p id="sampleHint" class="hint">Valores de ejemplo. Cámbialos por los nombres y los índices reales. Para un índice con signo más, pulsa el botón +.</p>
+  <div id="formats" class="fchips" role="radiogroup" aria-label="Formato de juego"></div>
+  <p id="fmtDesc" class="fdesc"></p>
+
+  <section aria-label="Jugadores">
+    <p id="sampleHint" class="hint">Valores de ejemplo. Cámbialos por los nombres y los índices reales. Toca el índice para escribirlo y usa las flechas ˄ ˅ del teclado para saltar de un jugador a otro. Para un índice con signo más, pulsa la tecla +.</p>
     <div id="players"></div>
-    <div class="row" style="margin-top:10px">
-      <button type="button" id="addPlayer" class="btn ghost sm">Añadir jugador</button>
-      <small id="teamHint" hidden>Foursomes: dos jugadores en el equipo A y dos en el B.</small>
-    </div>
+    <button type="button" id="addPlayer" class="add">+ Añadir jugador</button>
+    <small id="teamHint" hidden style="display:block;margin-top:8px">Foursomes: dos jugadores en el equipo A y dos en el B. Cada recuadro muestra los golpes de su equipo.</small>
     <div id="roster" hidden style="margin-top:14px">
       <span class="lab">Mis jugadores</span>
       <div id="rosterList" class="chips"></div>
@@ -167,12 +289,7 @@ footer{color:var(--muted);font-size:13px}
     </div>
   </section>
 
-  <section class="panel" aria-labelledby="h-format">
-    <h2 id="h-format">Formato de juego</h2>
-    <div class="formats" id="formats" role="radiogroup" aria-labelledby="h-format"></div>
-    <button type="button" id="calc" class="btn">Calcular golpes</button>
-    <div id="errors" class="error" role="alert" hidden></div>
-  </section>
+  <div id="errors" class="error" role="alert" hidden></div>
 
   <section id="results" class="panel" aria-live="polite" hidden></section>
 
@@ -223,6 +340,34 @@ Mi Club;Las Palmas;Rojas;71,1;122;72;</pre>
     Porcentajes recomendados del <a href="https://www.randa.org/en/roh/appendices/appendix-c" target="_blank" rel="noopener">Apéndice C de las Reglas de Hándicap</a>. El comité de cada prueba puede fijar otros, así que confirma las condiciones de la competición. Solo campos de 18 hoyos.
   </footer>
 </main>
+<div class="bar"><button type="button" id="calc" class="btn" aria-label="Ver golpes por hoyo" title="Ver golpes por hoyo"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div><!--barend-->
+<div id="sheet" class="sheet" hidden>
+  <div class="scrim" data-sheet="close"></div>
+  <div class="sp" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+    <div class="grab" aria-hidden="true"></div>
+    <div class="sh"><div><b id="sheetTitle"></b><small id="sheetSub"></small></div><button type="button" class="sx" data-sheet="close" aria-label="Cerrar">×</button></div>
+    <div id="sheetList" class="sl" role="listbox" aria-label="Barras"></div>
+  </div>
+</div>
+<div id="holeView" class="hv" hidden role="dialog" aria-modal="true" aria-label="Modo hoyo"><div>
+  <div class="hvt"><button type="button" class="back" data-hv="close" aria-label="Volver">‹</button><h2 id="hvTitle"></h2></div>
+  <div id="hvStrip" class="hvs" aria-label="Hoyos"></div>
+  <div id="hvBody"></div>
+  <div class="hvn"><button type="button" data-hv="prev"></button><button type="button" class="p" data-hv="next"></button></div>
+  <p id="hvNote" class="hvm"></p>
+</div></div>
+<div id="kp" class="kp" hidden role="group" aria-label="Teclado de índice">
+  <div>
+    <div class="kpt">
+      <button type="button" class="kk ar" tabindex="-1" data-kp="prev" aria-label="Jugador anterior"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M6 15l6-6 6 6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      <button type="button" class="kk ar" tabindex="-1" data-kp="next" aria-label="Jugador siguiente"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      <div class="kpn" id="kpName"></div>
+      <button type="button" class="kk pl" tabindex="-1" data-kp="plus" aria-pressed="false" aria-label="Índice con signo más">+</button>
+      <button type="button" class="kk done" tabindex="-1" data-kp="done">Listo</button>
+    </div>
+    <div class="kpg"><button type="button" class="kk" tabindex="-1" data-kp="1">1</button><button type="button" class="kk" tabindex="-1" data-kp="2">2</button><button type="button" class="kk" tabindex="-1" data-kp="3">3</button><button type="button" class="kk" tabindex="-1" data-kp="4">4</button><button type="button" class="kk" tabindex="-1" data-kp="5">5</button><button type="button" class="kk" tabindex="-1" data-kp="6">6</button><button type="button" class="kk" tabindex="-1" data-kp="7">7</button><button type="button" class="kk" tabindex="-1" data-kp="8">8</button><button type="button" class="kk" tabindex="-1" data-kp="9">9</button><button type="button" class="kk" tabindex="-1" data-kp=",">,</button><button type="button" class="kk" tabindex="-1" data-kp="0">0</button><button type="button" class="kk" tabindex="-1" data-kp="del"><svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path d="M21 5H9l-6 7 6 7h12z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M13 9.5l5 5m0-5l-5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button></div>
+  </div>
+</div>
 
 <script>
 /*CORE-START*/
@@ -313,12 +458,12 @@ var store={
 var RC={id:'rcg-las-palmas',name:'RCG Las Palmas · Recorrido A',loc:'Bandama, Santa Brígida',
   note:'Fuente: ficha del club en rfegolf.es (club/real-club-golf-las-palmas), consultada el 19/11/2026. Par 71.',
   tees:[
-  {name:'Amarillas (M)',cr:71.1,slope:135,par:71,si:[18,4,15,2,5,9,11,14,7,16,3,8,13,1,17,12,10,6]},
-  {name:'Amarillas (F)',cr:77.4,slope:138,par:71,si:[18,4,15,2,5,9,11,14,7,16,3,8,13,1,17,12,10,6]},
-  {name:'Azules (M)',cr:69.6,slope:133,par:71,si:[18,4,15,2,5,9,11,14,7,16,3,8,13,1,17,12,10,6]},
-  {name:'Azules (F)',cr:75.8,slope:134,par:71,si:[18,4,15,2,5,9,11,14,7,16,3,8,13,1,17,12,10,6]},
-  {name:'Rojas (M)',cr:67.4,slope:126,par:71,si:[18,4,15,2,5,9,11,14,7,16,3,8,13,1,17,12,10,6]},
-  {name:'Rojas (F)',cr:72.6,slope:129,par:71,si:[18,4,15,2,5,9,11,14,7,16,3,8,13,1,17,12,10,6]}
+  {name:'Amarillas (M)',cr:71.1,slope:135,par:71,si:[18,4,15,2,5,9,11,14,7,16,3,8,13,1,17,12,10,6],hp:[4,4,3,4,4,4,4,3,5,3,4,4,4,4,3,5,4,5]},
+  {name:'Amarillas (F)',cr:77.4,slope:138,par:71,si:[18,4,15,2,5,9,11,14,7,16,3,8,13,1,17,12,10,6],hp:[4,4,3,4,4,4,4,3,5,3,4,4,4,4,3,5,4,5]},
+  {name:'Azules (M)',cr:69.6,slope:133,par:71,si:[18,4,15,2,5,9,11,14,7,16,3,8,13,1,17,12,10,6],hp:[4,4,3,4,4,4,4,3,5,3,4,4,4,4,3,5,4,5]},
+  {name:'Azules (F)',cr:75.8,slope:134,par:71,si:[18,4,15,2,5,9,11,14,7,16,3,8,13,1,17,12,10,6],hp:[4,4,3,4,4,4,4,3,5,3,4,4,4,4,3,5,4,5]},
+  {name:'Rojas (M)',cr:67.4,slope:126,par:71,si:[18,4,15,2,5,9,11,14,7,16,3,8,13,1,17,12,10,6],hp:[4,4,3,4,4,4,4,3,5,3,4,4,4,4,3,5,4,5]},
+  {name:'Rojas (F)',cr:72.6,slope:129,par:71,si:[18,4,15,2,5,9,11,14,7,16,3,8,13,1,17,12,10,6],hp:[4,4,3,4,4,4,4,3,5,3,4,4,4,4,3,5,4,5]}
 ]};
 var user=(function(){var v=store.get('gh_courses'); return Array.isArray(v)?v:[];})();
 var nextId=10;
@@ -329,6 +474,7 @@ var defaults={courseId:'rcg-las-palmas',defaultTee:'Amarillas (M)',format:'singl
   {id:4,name:'Jugador 4',hi:'9,8',tee:'',team:'B'}]};
 var saved=store.get('gh_state');
 var state=(saved&&Array.isArray(saved.players)&&saved.players.length&&FORMATS[saved.format])?saved:defaults;
+state.calculated=true;
 state.players.forEach(function(p){if(p.id>=nextId)nextId=p.id+1;});
 
 function teeRank(t){return /\(M\)\s*$/.test(t.name)?0:(/\(F\)\s*$/.test(t.name)?1:2);}
@@ -380,7 +526,7 @@ function save(){
 function changed(commit){
   if(commit) upsertRoster();
   save();
-  if(state.calculated) run(true);
+  run(true);
 }
 var DEFNAME=/^Jugador \d+$/;
 function upsertRoster(){
@@ -445,7 +591,7 @@ async function hydrate(){
     cloud.ok=true;
     store.set('gh_courses',user); store.set('gh_state',state); store.set('gh_roster',roster);
     renderAll(); renderDB();
-    if(state.calculated) run(true);
+    run(true);
     setMem(true);
     pushCourses(up);
     if(pushNow) scheduleSync();
@@ -471,6 +617,7 @@ function pick(id){
   var c=getCourse();
   state.players.forEach(function(p){if(p.tee&&!c.tees.some(function(t){return t.name===p.tee;}))p.tee='';});
   list.hidden=true;
+  setPanel(false);
   renderAll();
   changed();
   search.blur();
@@ -487,12 +634,17 @@ list.addEventListener('click',function(e){var b=e.target.closest('button[data-id
 wrap.addEventListener('focusout',function(e){
   if(!wrap.contains(e.relatedTarget)){list.hidden=true;search.value=label(getCourse());}
 });
-$('#teeDefault').addEventListener('change',function(e){state.defaultTee=e.target.value;renderPlayers();changed();});
+$('#teeDefault').addEventListener('change',function(e){state.defaultTee=e.target.value;renderCourse();renderPlayers();changed();});
 
+function setPanel(open){$('#coursePanel').hidden=!open;$('#courseCard').setAttribute('aria-expanded',String(open));}
+$('#courseCard').addEventListener('click',function(){setPanel($('#coursePanel').hidden);});
 function renderCourse(){
   var c=getCourse();
   search.value=label(c);
   $('#teeDefault').innerHTML=c.tees.map(function(t){return '<option value="'+esc(t.name)+'"'+(t.name===state.defaultTee?' selected':'')+'>'+esc(t.name)+'</option>';}).join('');
+  var dt=c.tees.find(function(t){return t.name===state.defaultTee;})||c.tees[0];
+  $('#cName').textContent=c.name;
+  $('#cSub').textContent=dt.name+' · '+num(dt.cr,1)+' / '+dt.slope+' · par '+dt.par+(c.loc?' · '+c.loc:'');
   $('#courseInfo').innerHTML=c.tees.map(function(t){
     return '<span style="white-space:nowrap">'+esc(t.name)+' '+num(t.cr,1)+' / '+t.slope+' / par '+t.par+(t.si?'':' (sin índice de golpes)')+'</span>';
   }).join(' &nbsp;·&nbsp; ')+(c.note?'<br><small>'+esc(c.note)+'</small>':'');
@@ -514,23 +666,40 @@ function updateTeeLabels(row,p){
     if(t) o.textContent=teeText(t,p);
   });
 }
+var AVC=['#f2c9a0','#bcd8c4','#c9c6ea','#f0b8b8','#f6e3a1','#b5d6e6','#e3c1dd','#cfd9a8'];
+var COARSE=!!(window.matchMedia&&matchMedia('(pointer:coarse)').matches);
+var TEECOL=[['amarill','#f0c93a'],['blanc','#ffffff'],['roj','#d9483b'],['azul','#3b6fd9'],['negr','#222a26'],['verde','#3a9a5b'],['naranja','#f08a2b'],['dorad','#c9a227'],['oro','#c9a227'],['plat','#aab2b0'],['morad','#8a4fd0'],['viol','#8a4fd0'],['rosa','#ee8fb5'],['gris','#9aa39f'],['marr','#8a5a35'],['celest','#6cc3e8'],['turquesa','#2bb5ad']];
+function teeColor(n){
+  var s=String(n).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+  for(var i=0;i<TEECOL.length;i++) if(s.indexOf(TEECOL[i][0])>-1) return TEECOL[i][1];
+  return '#b9c2bd';
+}
+var CHEV='<svg class="cv" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+function effTee(p){var c=getCourse();return c.tees.find(function(t){return t.name===(p.tee||state.defaultTee);})||c.tees[0];}
+function chOf(p,t){var hi=parseHI(p.hi); if(Number.isNaN(hi)||hi<-10||hi>54) return null; return courseHcp(hi,t).ch;}
+function chText(ch){return ch===null?'':(ch<0?'+'+(-ch):String(ch))+(Math.abs(ch)===1?' golpe':' golpes');}
+function pillInner(p){
+  var t=effTee(p);
+  return '<span class="dot" style="background:'+teeColor(t.name)+'"></span><span class="tn">'+esc(t.name)+'</span><span class="tc">'+esc(chText(chOf(p,t)))+'</span>'+CHEV;
+}
+function updateTeePill(row,p){var b=row.querySelector('[data-act="tee"]'); if(b) b.innerHTML=pillInner(p);}
+function teamLabel(p){return 'Equipo '+(p.team==='B'?'B':'A');}
 function renderPlayers(){
-  var c=getCourse(), f=FORMATS[state.format];
-  var teeOpts=function(sel,pl){
-    var cur=sel||state.defaultTee;
-    return c.tees.map(function(t){return '<option value="'+esc(t.name)+'"'+(cur===t.name?' selected':'')+'>'+esc(teeText(t,pl))+'</option>';}).join('');
-  };
+  if(typeof kpHide==='function'){kpHide();}
+  var f=FORMATS[state.format];
   var box=$('#players');
   box.className='players'+(f.teams?' has-team':'');
-  var head='<div class="phead" aria-hidden="true"><span>Jugador</span><span>Índice</span><span>Barras</span>'+(f.teams?'<span>Equipo</span>':'')+'<span></span></div>';
-  box.innerHTML=head+state.players.map(function(p){
-    var plus=String(p.hi||'').trim().charAt(0)==='+';
+  box.innerHTML=state.players.map(function(p,i){
+    var ini=(String(p.name||'').trim().charAt(0)||'?').toUpperCase();
     return '<div class="prow" data-id="'+p.id+'">'+
-      '<div class="f-name"><label class="lab" for="n'+p.id+'">Nombre</label><input id="n'+p.id+'" data-k="name" maxlength="24" autocomplete="off" placeholder="Nombre" value="'+esc(p.name)+'"></div>'+
-      '<div class="f-hi hiwrap"><label class="lab" for="h'+p.id+'">Índice</label><input id="h'+p.id+'" data-k="hi" type="text" inputmode="decimal" autocomplete="off" placeholder="Índice" value="'+esc(p.hi)+'"><button type="button" class="plus" data-act="plus" aria-pressed="'+plus+'" aria-label="Índice con signo más" title="Índice con signo más">+</button></div>'+
-      '<div class="f-tee"><label class="lab" for="t'+p.id+'">Barras</label><select id="t'+p.id+'" data-k="tee">'+teeOpts(p.tee||'',p)+'</select></div>'+
-      '<div class="f-team"'+(f.teams?'':' hidden')+'><label class="lab" for="q'+p.id+'">Equipo</label><select id="q'+p.id+'" data-k="team"><option value="A"'+(p.team==='A'?' selected':'')+'>A</option><option value="B"'+(p.team==='B'?' selected':'')+'>B</option></select></div>'+
-      '<div class="f-rm"><button type="button" class="rm" data-act="rm" aria-label="Quitar a '+esc(p.name)+'"'+(state.players.length<=1?' disabled':'')+'>×</button></div>'+
+      '<button type="button" class="rm" data-act="rm" aria-label="Quitar a '+esc(p.name)+'"'+(state.players.length<=1?' disabled':'')+'>×</button>'+
+      '<div class="l1">'+
+        '<div class="nm"><div class="nl"><div class="nm"><label class="lab" for="n'+p.id+'">Nombre</label><input class="nmi" id="n'+p.id+'" data-k="name" maxlength="24" autocomplete="off" enterkeyhint="next" placeholder="Nombre" value="'+esc(p.name)+'"></div>'+
+          (f.teams?'<button type="button" class="teambtn" data-act="team" data-t="'+(p.team==='B'?'B':'A')+'" aria-label="Cambiar de equipo">'+teamLabel(p)+'</button>':'')+'</div>'+
+          '<div class="sub"><button type="button" class="teebtn" data-act="tee" aria-haspopup="dialog" aria-label="Barras de salida de '+esc(p.name)+'">'+pillInner(p)+'</button></div></div>'+
+        '<div class="hiwrap"><label class="lab" for="h'+p.id+'">Índice</label><input id="h'+p.id+'" data-k="hi" type="text" inputmode="'+(COARSE?'none':'text')+'" class="'+(COARSE?'nokb':'')+'" autocomplete="off" enterkeyhint="next" placeholder="Índice" value="'+esc(p.hi)+'"></div>'+
+        '<div class="g z" data-box aria-label="Golpes">–</div>'+
+      '</div>'+
     '</div>';
   }).join('');
   $('#addPlayer').disabled=state.players.length>=8;
@@ -538,14 +707,176 @@ function renderPlayers(){
   $('#sampleHint').hidden=!state.sample;
   renderRoster();
 }
+function playerOf(row){return state.players.find(function(x){return String(x.id)===row.dataset.id;});}
+
+/* --- Hoja de barras --- */
+var sheet=$('#sheet'), sheetFor=null, sheetOpener=null;
+function openSheet(row,btn){
+  var p=playerOf(row); if(!p) return;
+  kpDone();
+  sheetFor=p.id; sheetOpener=btn;
+  var c=getCourse(), cur=effTee(p).name;
+  var ok=chOf(p,c.tees[0])!==null;
+  $('#sheetTitle').textContent='Barras de '+(String(p.name||'').trim()||'jugador');
+  $('#sheetSub').textContent=ok?'Golpes de hándicap de campo con índice '+String(p.hi).trim():'Escribe un índice para ver los golpes de cada barra';
+  var groups=c.tees.some(function(t){return teeRank(t)===0;})&&c.tees.some(function(t){return teeRank(t)===1;});
+  var names=['Masculinas','Femeninas','Otras'], last=-1, html='';
+  c.tees.forEach(function(t,i){
+    var r=teeRank(t);
+    if(groups&&r!==last){html+='<div class="sg">'+names[r]+'</div>'; last=r;}
+    var ch=chOf(p,t);
+    html+='<button type="button" class="opt" role="option" data-i="'+i+'" aria-selected="'+(t.name===cur)+'">'+
+      '<span class="dot" style="background:'+teeColor(t.name)+'"></span>'+
+      '<span class="on"><b>'+esc(t.name)+'</b><small>CR '+num(t.cr,1)+' · slope '+t.slope+' · par '+t.par+'</small></span>'+
+      '<span class="oc"><b>'+(ch===null?'–':(ch<0?'+'+(-ch):ch))+'</b><small>'+(ch===null?'':(Math.abs(ch)===1?'golpe':'golpes'))+'</small></span></button>';
+  });
+  $('#sheetList').innerHTML=html;
+  sheet.hidden=false; document.body.classList.add('sheetopen');
+  var sel=$('#sheetList').querySelector('[aria-selected="true"]'); if(sel){try{sel.focus({preventScroll:true});sel.scrollIntoView({block:'center'});}catch(_){}}
+}
+function closeSheet(){
+  if(sheet.hidden) return;
+  sheet.hidden=true; document.body.classList.remove('sheetopen'); sheetFor=null;
+  if(sheetOpener&&document.body.contains(sheetOpener)){try{sheetOpener.focus({preventScroll:true});}catch(_){}}
+  sheetOpener=null;
+}
+sheet.addEventListener('click',function(e){
+  if(e.target.closest('[data-sheet="close"]')){closeSheet();return;}
+  var o=e.target.closest('.opt'); if(!o) return;
+  var p=state.players.find(function(x){return x.id===sheetFor;}); if(!p){closeSheet();return;}
+  var t=getCourse().tees[+o.dataset.i]; if(!t){closeSheet();return;}
+  p.tee=(t.name===state.defaultTee)?'':t.name;
+  var row=document.querySelector('.prow[data-id="'+p.id+'"]');
+  closeSheet();
+  if(row) updateTeePill(row,p);
+  state.sample=false; $('#sampleHint').hidden=true; changed(true);
+});
+document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!sheet.hidden) closeSheet();});
+
+/* --- Teclado propio para el índice --- */
+var kp=$('#kp'), kpIn=null, kpFresh=false, kpStart='';
+function hiInputs(){return Array.prototype.slice.call(document.querySelectorAll('#players [data-k="hi"]'));}
+function kpSync(){
+  if(!kpIn) return;
+  var row=kpIn.closest('.prow'), p=row?playerOf(row):null, a=hiInputs(), i=a.indexOf(kpIn);
+  $('#kpName').innerHTML=esc((p&&String(p.name||'').trim())||'Jugador')+'<small>Índice</small>';
+  kp.querySelector('[data-kp="prev"]').disabled=i<=0;
+  kp.querySelector('[data-kp="next"]').disabled=i<0||i>=a.length-1;
+  kp.querySelector('[data-kp="plus"]').setAttribute('aria-pressed',String(kpIn.value.trim().charAt(0)==='+'));
+}
+function reveal(row){
+  if(!row) return;
+  requestAnimationFrame(function(){
+    var h=kp.offsetHeight||290, bottom=window.innerHeight-h-10, r=row.getBoundingClientRect();
+    if(r.bottom>bottom) window.scrollBy({top:r.bottom-bottom,behavior:'smooth'});
+    else if(r.top<10) window.scrollBy({top:r.top-10,behavior:'smooth'});
+  });
+}
+function kpOpen(inp){
+  if(kpIn&&kpIn!==inp) kpIn.classList.remove('fresh');
+  kpIn=inp; kpFresh=true; kpStart=inp.value; inp.classList.add('fresh');
+  kp.hidden=false; document.body.classList.add('kpopen');
+  kpSync(); reveal(inp.closest('.prow'));
+}
+function kpHide(){
+  if(kpIn) kpIn.classList.remove('fresh');
+  kpIn=null; kp.hidden=true; document.body.classList.remove('kpopen');
+}
+function kpDone(){var a=kpIn; if(a&&document.activeElement===a) a.blur(); kpHide();}
+function kpSet(v,keep){
+  kpIn.value=v;
+  kpIn.dispatchEvent(new Event('input',{bubbles:true}));
+  if(!keep){kpFresh=false; kpIn.classList.remove('fresh');}
+  kpSync();
+}
+function bump(){kpIn.classList.remove('bump'); void kpIn.offsetWidth; kpIn.classList.add('bump');}
+function kpKey(k){
+  var v=kpIn.value.trim(), plus=v.charAt(0)==='+', s=plus?v.slice(1):v;
+  if(/^[0-9]$/.test(k)){
+    if(kpFresh) s='';
+    var cm=s.indexOf(',');
+    if(cm>-1){ if(s.length-cm-1>=1) return bump(); s+=k; }
+    else if(s==='0') s=k;
+    else if(s.length>=2) return bump();
+    else s+=k;
+    if(parseFloat(s.replace(',','.'))>(plus?10:54)) return bump();
+    kpSet((plus?'+':'')+s);
+  }else if(k===','){
+    if(kpFresh) s='';
+    if(s==='') s='0';
+    if(s.indexOf(',')>-1) return bump();
+    kpSet((plus?'+':'')+s+',');
+  }else if(k==='del'){
+    if(kpFresh||s==='') kpSet(''); else kpSet((plus?'+':'')+s.slice(0,-1));
+  }else if(k==='plus'){
+    if(plus) kpSet(s,true);
+    else{ if(parseFloat(s.replace(',','.'))>10) return bump(); kpSet('+'+s,true); }
+  }
+}
+function kpGo(d){
+  var a=hiInputs(), i=a.indexOf(kpIn), j=i+d;
+  if(i<0||j<0||j>=a.length) return;
+  a[j].focus({preventScroll:true});
+}
+kp.addEventListener('mousedown',function(e){e.preventDefault();});
+kp.addEventListener('click',function(e){
+  var b=e.target.closest('[data-kp]'); if(!b||b.disabled||!kpIn) return;
+  var k=b.dataset.kp;
+  if(k==='prev') kpGo(-1); else if(k==='next') kpGo(1); else if(k==='done') kpDone(); else kpKey(k);
+});
+$('#players').addEventListener('focusin',function(e){
+  var t=e.target;
+  if(!t.matches||!t.matches('[data-k="hi"]')){ if(COARSE) kpHide(); return; }
+  if(COARSE) kpOpen(t); else setTimeout(function(){try{t.select();}catch(_){}} ,0);
+});
+$('#players').addEventListener('focusout',function(e){
+  var t=e.target; if(!t.matches||!t.matches('[data-k="hi"]')) return;
+  if(COARSE&&t===kpIn&&t.value!==kpStart) t.dispatchEvent(new Event('change',{bubbles:true}));
+  var to=e.relatedTarget;
+  if(to&&to.matches&&to.matches('#players [data-k="hi"]')) return;
+  if(COARSE) kpHide();
+});
+document.addEventListener('pointerdown',function(e){
+  if(!kpIn) return;
+  var t=e.target;
+  if(kp.contains(t)||(t.closest&&t.closest('#players [data-k="hi"]'))) return;
+  kpIn.blur();
+},true);
+$('#players').addEventListener('keydown',function(e){
+  if(e.key!=='Enter') return;
+  var t=e.target; if(!t.matches) return;
+  if(t.matches('[data-k="hi"]')){
+    e.preventDefault();
+    var a=hiInputs(), j=a.indexOf(t)+1;
+    if(j<a.length) a[j].focus(); else t.blur();
+  }else if(t.matches('[data-k="name"]')){
+    e.preventDefault();
+    var h=t.closest('.prow').querySelector('[data-k="hi"]'); if(h) h.focus();
+  }
+});
+$('#players').addEventListener('click',function(e){
+  var b=e.target.closest('[data-act="tee"],[data-act="team"]'); if(!b) return;
+  var row=b.closest('.prow'), p=playerOf(row); if(!p) return;
+  if(b.dataset.act==='tee'){openSheet(row,b);return;}
+  p.team=p.team==='B'?'A':'B';
+  b.dataset.t=p.team; b.textContent=teamLabel(p);
+  state.sample=false; $('#sampleHint').hidden=true; changed();
+});
+if('IntersectionObserver' in window){
+  new IntersectionObserver(function(es){
+    document.querySelector('.bar').classList.toggle('gone',es[0].isIntersecting&&!$('#results').hidden);
+  },{threshold:0.1}).observe($('#results'));
+}
+
 function onPlayerEdit(e){
   var t=e.target, row=t.closest('.prow');
   if(!row||!t.dataset.k) return;
   var p=state.players.find(function(x){return String(x.id)===row.dataset.id;});
   if(!p) return;
   p[t.dataset.k]=t.value;
+  if(t.dataset.k==='name'){var av=row.querySelector('.av'); if(av) av.textContent=(t.value.trim().charAt(0)||'?').toUpperCase();}
   if(t.dataset.k==='tee'&&t.value===state.defaultTee) p.tee='';
-  if(t.dataset.k==='hi') updateTeeLabels(row,p);
+  if(t.dataset.k==='hi') updateTeePill(row,p);
   if(t.dataset.k==='hi'){var pb=row.querySelector('.plus'); if(pb) pb.setAttribute('aria-pressed',String(t.value.trim().charAt(0)==='+'));}
   if(t.dataset.k!=='tee'&&t.dataset.k!=='team'||true){state.sample=false;$('#sampleHint').hidden=true;}
   changed(e.type==='change');
@@ -575,14 +906,17 @@ $('#addPlayer').addEventListener('click',function(){
 
 /* ---------- Formatos ---------- */
 function renderFormats(){
-  $('#formats').innerHTML=Object.keys(FORMATS).map(function(k){
+  var box=$('#formats');
+  box.innerHTML=Object.keys(FORMATS).map(function(k){
     var f=FORMATS[k];
-    return '<label class="fmt"><input type="radio" name="fmt" value="'+k+'"'+(state.format===k?' checked':'')+'><span class="card"><b><span>'+esc(f.label)+'</span><span>'+f.pct+'</span></b><small>'+esc(f.desc)+'</small></span></label>';
+    return '<button type="button" class="fchip" role="radio" data-k="'+k+'" aria-checked="'+(state.format===k)+'">'+esc(f.label)+'<small>'+f.pct+'</small></button>';
   }).join('');
+  $('#fmtDesc').textContent=FORMATS[state.format].desc;
+  var on=box.querySelector('[aria-checked="true"]'); if(on) box.scrollLeft=Math.max(0,on.offsetLeft-16);
 }
-$('#formats').addEventListener('change',function(e){
-  if(e.target.name!=='fmt') return;
-  state.format=e.target.value; renderPlayers(); changed();
+$('#formats').addEventListener('click',function(e){
+  var b=e.target.closest('[data-k]'); if(!b||b.dataset.k===state.format) return;
+  state.format=b.dataset.k; renderFormats(); renderPlayers(); changed();
 });
 
 /* ---------- Resultado ---------- */
@@ -628,7 +962,7 @@ function scoreHTML(items){
     var tot=0, cells=i.holes.map(function(k){tot+=k; return k===0?'<td></td>':'<td class="'+(k>0?'hit':'give')+'">'+(k>0?k:'+'+(-k))+'</td>';}).join('');
     return '<tr><td>'+esc(i.label)+'</td>'+cells+'<td><b>'+strokesLabel(tot)+'</b></td></tr>';
   }).join('');
-  return '<h3 style="font-family:var(--font-display);font-size:15px;margin:18px 0 8px">Golpes por hoyo</h3>'+
+  return '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin:18px 0 8px"><h3 style="font-family:var(--font-display);font-size:15px;margin:0">Golpes por hoyo</h3><button type="button" class="btn ghost sm" data-hole="open">Modo hoyo ›</button></div>'+
     '<div class="tablewrap"><table class="sc"><thead><tr>'+head+'</tr></thead><tbody><tr class="si">'+sirow+'</tr>'+body+'</tbody></table></div>'+
     (mixed?'<p class="note">Las salidas tienen distinto índice de golpes. Cada fila usa el de su propia salida; el de la cabecera es el del primer jugador.</p>':'');
 }
@@ -652,17 +986,38 @@ function resultHTML(out,key){
     (out.teams?'<li>Diferencia entre equipos: '+out.teams.diff+' × 50 % = '+num(0.5*out.teams.diff,2)+' → '+rnd(0.5*out.teams.diff)+' golpes</li>':'')+'</ul></details>';
   return h;
 }
+function setBoxes(vals,cap){
+  document.querySelectorAll('#players .prow').forEach(function(row,i){
+    var b=row.querySelector('[data-box]'); if(!b) return;
+    var v=vals?vals[i]:null, none=(v===null||v===undefined);
+    b.textContent=none?'–':strokesLabel(v);
+    b.classList.toggle('z',none||v===0);
+    if(cap&&!none) b.setAttribute('data-cap',cap); else b.removeAttribute('data-cap');
+    b.setAttribute('aria-label',none?'Golpes: sin calcular':'Golpes: '+strokesLabel(v));
+  });
+}
 function run(quiet){
   var out=compute(state.format,state.players,getCourse(),state.defaultTee);
+  lastOut=out;
   var err=$('#errors'), res=$('#results');
   if(out.errors.length){
-    err.innerHTML=out.errors.map(function(e){return '<p>'+esc(e)+'</p>';}).join(''); err.hidden=false;
-    res.hidden=true; return;
+    err.innerHTML=out.errors.map(function(e){return '<p>'+esc(e)+'</p>';}).join('');
+    err.className='error'+(quiet?' soft':''); err.hidden=false;
+    res.hidden=true; setBoxes(null); return;
   }
   err.hidden=true;
   res.innerHTML=resultHTML(out,state.format); res.hidden=false;
+  setBoxes(out.rows.map(function(r){
+    if(r.strokes!==null) return r.strokes;
+    var t=out.teams.filter(function(x){return x.key===r.team;})[0];
+    return t?t.strokes:null;
+  }),out.teams?'equipo':'');
 }
-$('#calc').addEventListener('click',function(){upsertRoster();state.calculated=true;save();run(false);var r=$('#results');if(!r.hidden)r.scrollIntoView({behavior:'smooth',block:'start'});});
+$('#calc').addEventListener('click',function(){
+  upsertRoster();save();run(false);
+  var r=$('#results'), e=$('#errors'), target=!r.hidden?r:(!e.hidden?e:null);
+  if(target) target.scrollIntoView({behavior:'smooth',block:'start'});
+});
 
 /* ---------- Base de datos ---------- */
 var dbMsg=$('#dbMsg');
@@ -680,8 +1035,14 @@ function parseSI(x){
   for(var i=0;i<18;i++) if(s[i]!==i+1) return null;
   return a;
 }
+function parseHP(x,par){
+  var a=String(x).split(/[^0-9]+/).filter(Boolean).map(Number);
+  if(a.length!==18||a.some(function(v){return v<3||v>6;})) return null;
+  if(a.reduce(function(s,v){return s+v;},0)!==par) return null;
+  return a;
+}
 function ingest(rows){
-  var ok=0,bad=0,siBad=0,errs=[],touched={};
+  var ok=0,bad=0,siBad=0,hpBad=0,errs=[],touched={};
   var byId=new Map(user.map(function(c){return [c.id,c];}));
   rows.forEach(function(r,i){
     var name=String(r.name||'').trim(), tee=String(r.tee||'').trim()||'Única';
@@ -696,7 +1057,10 @@ function ingest(rows){
     var loc=String(r.loc||'').trim(), id=slug(name+'|'+loc).slice(0,120);
     touched[id]=1;
     var c=byId.get(id); if(!c){c={id:id,name:name,loc:loc,tees:[]};byId.set(id,c);}
+    var hp=null;
+    if(r.hp!==null&&r.hp!==undefined&&String(r.hp).trim()!==''){hp=parseHP(Array.isArray(r.hp)?r.hp.join(' '):r.hp,par);}
     var t={name:tee,cr:cr,slope:slope,par:par,si:si};
+    if(hp) t.hp=hp; else if(r.hp!==null&&r.hp!==undefined&&String(r.hp).trim()!=='') hpBad++;
     var k=c.tees.findIndex(function(x){return x.name===tee;});
     if(k>=0) c.tees[k]=t; else c.tees.push(t);
     ok++;
@@ -706,6 +1070,7 @@ function ingest(rows){
   var m=ok+(ok===1?' salida cargada.':' salidas cargadas.');
   if(bad) m+=' '+bad+' filas omitidas ('+errs.join('; ')+').';
   if(siBad) m+=' '+siBad+' índices de golpes ignorados por no ser 18 números del 1 al 18.';
+  if(hpBad) m+=' '+hpBad+' pares por hoyo ignorados: deben ser 18 números del 3 al 6 que sumen el par.';
   say(m,ok===0);
 }
 function parseDelimited(text){
@@ -725,7 +1090,7 @@ function parseDelimited(text){
   if(cur!==''||row.length){row.push(cur);rows.push(row);}
   return rows.filter(function(r){return r.some(function(x){return x.trim()!=='';});});
 }
-var HDR={campo:'name',course:'name',club:'name',nombre:'name',name:'name',localidad:'loc',location:'loc',ciudad:'loc',provincia:'loc',loc:'loc',salida:'tee',tee:'tee',teebox:'tee',barras:'tee',valorcampo:'cr',cr:'cr',rating:'cr',courserating:'cr',calificacion:'cr',slope:'slope',sloperating:'slope',valorslope:'slope',par:'par',si:'si',strokeindex:'si',indicedegolpes:'si',hcp:'si'};
+var HDR={campo:'name',course:'name',club:'name',nombre:'name',name:'name',localidad:'loc',location:'loc',ciudad:'loc',provincia:'loc',loc:'loc',salida:'tee',tee:'tee',teebox:'tee',barras:'tee',valorcampo:'cr',cr:'cr',rating:'cr',courserating:'cr',calificacion:'cr',slope:'slope',sloperating:'slope',valorslope:'slope',par:'par',si:'si',strokeindex:'si',indicedegolpes:'si',hcp:'si',parhoyos:'hp',parporhoyo:'hp',hp:'hp'};
 function importText(text){
   var t=text.trim();
   if(!t){say('No hay nada que cargar.',true);return;}
@@ -733,7 +1098,7 @@ function importText(text){
   if(t[0]==='['||t[0]==='{'){
     var data; try{data=JSON.parse(t);}catch(e){say('El JSON no es válido.',true);return;}
     var arr=Array.isArray(data)?data:(Array.isArray(data.courses)?data.courses:[]);
-    arr.forEach(function(c){(c.tees||[]).forEach(function(x){rows.push({name:c.name,loc:c.loc||c.location,tee:x.name,cr:x.cr,slope:x.slope,par:x.par,si:x.si});});});
+    arr.forEach(function(c){(c.tees||[]).forEach(function(x){rows.push({name:c.name,loc:c.loc||c.location,tee:x.name,cr:x.cr,slope:x.slope,par:x.par,si:x.si,hp:x.hp});});});
   } else {
     var tab=parseDelimited(t);
     if(tab.length<2){say('Faltan filas: la primera línea debe ser la cabecera.',true);return;}
@@ -791,11 +1156,87 @@ $('#copyDb').addEventListener('click',function(){
   else fallback();
 });
 
-function renderAll(){renderCourse();renderPlayers();}
+/* --- Modo hoyo --- */
+var lastOut=null, hole=1, hv=$('#holeView');
+try{var sh=parseInt(localStorage.getItem('gh_hole'),10); if(sh>=1&&sh<=18) hole=sh;}catch(_){}
+function holeItems(out){
+  if(out.teams) return out.teams.map(function(t){
+    var m=t.members[0].tee;
+    return {name:'Equipo '+t.key,sub:t.members.map(function(x){return x.name;}).join(' y '),holes:t.holes,si:t.si,hp:m.hp||null,tot:t.strokes};
+  });
+  return out.rows.map(function(r){return {name:r.name,sub:null,holes:r.holes,si:r.tee.si,hp:r.tee.hp||null,tot:r.strokes};});
+}
+function renderHole(){
+  var out=lastOut, c=getCourse();
+  $('#hvTitle').innerHTML='Hoyo '+hole+'<small>'+esc(c.name)+' · '+esc(state.defaultTee)+'</small>';
+  var body=$('#hvBody'), strip=$('#hvStrip');
+  if(!out||out.errors.length){
+    strip.innerHTML=''; body.innerHTML='<p class="hvm" style="margin:30px 0">Completa los jugadores y sus índices para ver los golpes de cada hoyo.</p>';
+    $('#hvNote').textContent=''; return;
+  }
+  var items=holeItems(out), ref=items.filter(function(i){return i.si;})[0];
+  var refHp=items.filter(function(i){return i.hp;})[0];
+  var h0=hole-1;
+  strip.innerHTML=Array.apply(null,Array(18)).map(function(_,k){
+    var any=items.some(function(i){return i.holes&&i.holes[k]!==0;});
+    return '<button type="button" data-h="'+(k+1)+'"'+(k+1===hole?' aria-current="true"':'')+' aria-label="Hoyo '+(k+1)+'">'+(k+1)+(any?'<i></i>':'')+'</button>';
+  }).join('');
+  var cur=strip.querySelector('[aria-current="true"]'); if(cur) strip.scrollLeft=Math.max(0,cur.offsetLeft-strip.clientWidth/2+19);
+  var parT=refHp?refHp.hp[h0]:'–', siT=ref?ref.si[h0]:'–';
+  var html='<div class="hvi"><div>Par<b>'+parT+'</b></div><div>Índice de golpes<b>'+siT+'</b></div><div class="f">Formato<b>'+esc(FORMATS[state.format].label)+' '+FORMATS[state.format].pct+'</b></div></div>';
+  html+=items.map(function(i){
+    var k=i.holes?i.holes[h0]:null;
+    var extra=[];
+    if(i.hp&&refHp&&i.hp[h0]!==refHp.hp[h0]) extra.push('par '+i.hp[h0]);
+    if(i.si&&ref&&i.si[h0]!==ref.si[h0]) extra.push('índ. '+i.si[h0]);
+    var sub=(i.sub?esc(i.sub)+' · ':'')+strokesLabel(i.tot)+' golpes en total'+(extra.length?' · '+extra.join(' · '):'');
+    var box=k===null?'–':(k===0?'–':(k>0?String(k):'+'+(-k)));
+    var cls='b'+(k===null||k===0?' z':(k<0?' g2':''));
+    return '<div class="hp'+(k>0?' has':'')+'"><div class="n">'+esc(i.name)+'<small>'+sub+'</small></div><div class="d" aria-hidden="true">'+(k>0?'●'.repeat(Math.min(k,4)):'')+'</div><div class="'+cls+'" aria-label="'+(k>0?'Recibe '+k+(k===1?' golpe':' golpes'):(k<0?'Devuelve '+(-k):'Sin golpes'))+'">'+box+'</div></div>';
+  }).join('');
+  body.innerHTML=html;
+  var pv=hv.querySelector('[data-hv="prev"]'), nx=hv.querySelector('[data-hv="next"]');
+  pv.textContent=hole>1?'‹ Hoyo '+(hole-1):''; pv.disabled=hole<=1;
+  nx.textContent=hole<18?'Hoyo '+(hole+1)+' ›':''; nx.disabled=hole>=18;
+  var notes=[];
+  if(!items.some(function(i){return i.holes;})) notes.push('Este campo no tiene índice de golpes.');
+  if(!refHp) notes.push('Este campo no tiene el par de cada hoyo.');
+  if(items.some(function(i){return i.holes&&i.holes.some(function(v){return v<0;});})) notes.push('+1 en naranja: el índice con signo más devuelve un golpe en ese hoyo.');
+  $('#hvNote').textContent=notes.length?notes.join(' '):'Cada punto es un golpe que se recibe en este hoyo.';
+}
+function goHole(n){
+  if(n<1||n>18) return;
+  hole=n; try{localStorage.setItem('gh_hole',String(n));}catch(_){}
+  renderHole(); hv.scrollTop=0;
+}
+function openHole(){
+  kpDone(); renderHole(); hv.hidden=false; document.body.classList.add('holeopen'); hv.scrollTop=0;
+  var b=hv.querySelector('.back'); if(b) b.focus({preventScroll:true});
+}
+function closeHole(){ if(hv.hidden) return; hv.hidden=true; document.body.classList.remove('holeopen'); }
+$('#results').addEventListener('click',function(e){ if(e.target.closest('[data-hole="open"]')) openHole(); });
+hv.addEventListener('click',function(e){
+  var a=e.target.closest('[data-hv]'), s=e.target.closest('[data-h]');
+  if(s){goHole(+s.dataset.h);return;}
+  if(!a||a.disabled) return;
+  if(a.dataset.hv==='close') closeHole(); else if(a.dataset.hv==='prev') goHole(hole-1); else goHole(hole+1);
+});
+document.addEventListener('keydown',function(e){
+  if(hv.hidden) return;
+  if(e.key==='Escape') closeHole(); else if(e.key==='ArrowRight') goHole(hole+1); else if(e.key==='ArrowLeft') goHole(hole-1);
+});
+var tx=null,ty=null;
+hv.addEventListener('touchstart',function(e){var t=e.changedTouches[0]; tx=t.clientX; ty=t.clientY;},{passive:true});
+hv.addEventListener('touchend',function(e){
+  if(tx===null) return; var t=e.changedTouches[0], dx=t.clientX-tx, dy=t.clientY-ty; tx=null;
+  if(Math.abs(dx)>60&&Math.abs(dy)<45&&!e.target.closest('#hvStrip')) goHole(dx<0?hole+1:hole-1);
+},{passive:true});
+
+function renderAll(){renderCourse();renderFormats();renderPlayers();}
 renderFormats();
 renderAll();
 renderDB();
-if(state.calculated) run(true);
+run(true);
 hydrate();
 })();
 </script>
